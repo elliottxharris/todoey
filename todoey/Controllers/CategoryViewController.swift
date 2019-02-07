@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
 	
 	let realm = try! Realm()
 
@@ -19,6 +20,8 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
 		
 		loadCategoriess()
+		
+		tableView.separatorStyle = .none
 	}
 	
 	//MARK: - TableView Datasource Methods
@@ -28,11 +31,11 @@ class CategoryViewController: UITableViewController {
 	}
 	
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = UITableViewCell(style: .default, reuseIdentifier: "Category")
+		let cell = super.tableView(tableView, cellForRowAt: indexPath)
 		
+		cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added"
 		
-		
-		cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Addedc"
+		cell.backgroundColor = UIColor.randomFlat
 		
 		return cell
 	}
@@ -73,6 +76,18 @@ class CategoryViewController: UITableViewController {
 		tableView.reloadData()
 	}
 	
+	override func updateModel(at indexPath: IndexPath) {
+		if let categoryForDeletion = self.categories?[indexPath.row] {
+			do {
+				try self.realm.write {
+					self.realm.delete(categoryForDeletion)
+				}
+			} catch {
+				print("Error deletinv \(error)")
+			}
+		}
+	}
+	
 	//MARK: - Add New Categories
 	
 	@IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -96,3 +111,4 @@ class CategoryViewController: UITableViewController {
 		
 	}
 }
+
